@@ -73,45 +73,27 @@ class UserLogin extends HTMLElement {
 
     submitForm(event) {
         event.preventDefault();
-        const username = this.shadowRoot.querySelector('#username').value;
-        const password = this.shadowRoot.querySelector('#password').value;
+        
+        const username = this.shadowRoot.querySelector('#username').value.trim();
+        const password = this.shadowRoot.querySelector('#password').value.trim();
 
-        // Autenticación hardcodeada
-        if (username === 'user' && password === 'pass') {
-            this.dispatchEvent(new CustomEvent('login-success', {
-                detail: { message: 'Inicio de sesión exitoso.' },
-                bubbles: true,
-                composed: true
-            }));
-        }
-        else if (username === "" && password === "") {
-            this.dispatchEvent(new CustomEvent('login-warning', {
-                detail: { message: 'Los campos están vacíos.' },
-                bubbles: true,
-                composed: true
-            }));
-        }
-        else if (username === "" && password !== "") {
-            this.dispatchEvent(new CustomEvent('login-warning', {
-                detail: { message: 'El campo Usuario está vacío.' },
-                bubbles: true,
-                composed: true
-            }));
-        }
-        else if (username !== "" && password === "") {
-            this.dispatchEvent(new CustomEvent('login-warning', {
-                detail: { message: 'El campo Contraseña está vacío.' },
-                bubbles: true,
-                composed: true
-            }));
-        }
-        else {
-            this.dispatchEvent(new CustomEvent('login-error', {
-                detail: { message: 'Error en el inicio de sesión.' },
-                bubbles: true,
-                composed: true
-            }));
-        }
+        //Mensajes según validaciones de los inputs
+        const validations = [
+            [!username && !password, 'login-warning', 'Los campos están vacíos.'],
+            [!username, 'login-warning', 'El campo Usuario está vacío.'],
+            [!password, 'login-warning', 'El campo Contraseña está vacío.'],
+            [username === 'user' && password === 'pass', 'login-success', 'Inicio de sesión exitoso.'],
+            [true, 'login-error', 'Error en el inicio de sesión.'] //Se evalua hasta encontrar el valor por defecto final
+        ];
+
+        //Me importan el type y el message
+        const [, type, message] = validations.find(([condition]) => condition);
+
+        this.dispatchEvent(new CustomEvent(type, {
+            detail: { message: message },
+            bubbles: true,
+            composed: true
+        }));
     }
 }
 
